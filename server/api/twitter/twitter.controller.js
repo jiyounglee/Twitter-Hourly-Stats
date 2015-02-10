@@ -15,6 +15,7 @@ var _ = require('lodash');
 exports.get = function (req, res) {
   res.json(
     {
-      test: 'twitter/token'
+      test: 'twitter/token',
+      access_token: 'dummy_access_token'
     });
 };
