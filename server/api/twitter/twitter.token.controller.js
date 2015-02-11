@@ -32,11 +32,10 @@ exports.get = function (req, res) {
     response.on('data', function (d) {
       var tokenJSONObject = JSON.parse((new Buffer(d, 'base64')).toString());
       var accessToken = tokenJSONObject.access_token;
-      var encodedAccessToken = new Buffer(accessToken).toString('base64');
 
-      console.info('Retrieved Access token : ' + encodedAccessToken);
+      console.info('Retrieved Access token : ' + accessToken);
 
-      res.json({access_token: encodedAccessToken});
+      res.json({access_token: accessToken});
     });
   });
   reqPost.write("grant_type=client_credentials");

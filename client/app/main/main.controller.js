@@ -12,6 +12,16 @@ angular.module('twitterHourlyStatsApp')
       .success(function (token) {
         console.log('success' + token);
         console.log('success' + token.access_token);
+        $http.defaults.headers.common['Authorization'] = "Bearer " + token.access_token;
+
+        $http.get('/api/twitter/stats')
+          .success(function (stats) {
+            console.log('success' + JSON.stringify(stats));
+
+          })
+          .error(function (error) {
+            console.log('error' + error);
+          })
       })
       .error(function (error) {
         console.log('error' + error);
