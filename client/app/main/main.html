@@ -12,6 +12,7 @@
     <input type=”text” ng-disabled='processing' ng-model='twitterScreenName'/>
     <button type=”submit” ng-disabled='processing' ng-click='show()' class="btn btn-default">Show</button>
     <h4 class="text-center" ng-show='processing'><small>Processing ...</small></h4>
+    <highchart ng-show='canDisplayChart()'id="chart1" config='chartConfig' class="span10"></highchart>
   </div>
   <div class="row" ng-hide='hasToken'>
     <h3 class="text-center"><small>Authenticating ...</small></h3>
