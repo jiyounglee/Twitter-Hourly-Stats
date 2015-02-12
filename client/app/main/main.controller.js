@@ -2,29 +2,33 @@
 
 angular.module('twitterHourlyStatsApp')
   .controller('MainCtrl', function ($scope, $http) {
-    $scope.awesomeThings = [];
-
-    $http.get('/api/things').success(function (awesomeThings) {
-      $scope.awesomeThings = awesomeThings;
-    });
+    $scope.hasToken = false;
+    $scope.processing = false;
 
     $http.get('/api/twitter/token')
       .success(function (token) {
         console.log('success' + token);
         console.log('success' + token.access_token);
         $http.defaults.headers.common['Authorization'] = "Bearer " + token.access_token;
-
-        $http.get('/api/twitter/stats')
-          .success(function (stats) {
-            console.log('success' + JSON.stringify(stats));
-
-          })
-          .error(function (error) {
-            console.log('error' + error);
-          })
+        $scope.hasToken = true;
       })
       .error(function (error) {
         console.log('error' + error);
+        $scope.hasToken = false;
       });
 
+    $scope.show = function () {
+      console.log("show");
+      console.log($scope.twitterScreenName);
+      $scope.processing = true;
+      $http.get('/api/twitter/stats')
+        .success(function (stats) {
+          console.log('success' + JSON.stringify(stats));
+          $scope.processing = false;
+        })
+        .error(function (error) {
+          $scope.processing = false;
+          console.log('error' + error);
+        })
+    };
   });
