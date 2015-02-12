@@ -21,7 +21,7 @@ angular.module('twitterHourlyStatsApp')
       console.log("show");
       console.log($scope.twitterScreenName);
       $scope.processing = true;
-      $http.get('/api/twitter/stats')
+      $http.get('/api/twitter/stats', {params: {twitterScreenName: $scope.twitterScreenName}})
         .success(function (stats) {
           console.log('success' + JSON.stringify(stats));
           $scope.processing = false;

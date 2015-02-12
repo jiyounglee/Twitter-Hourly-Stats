@@ -6,24 +6,32 @@ var aggregator = require('./twitter.hourly.stats.aggregator.js')
 exports.get = function (req, res) {
 
   console.info('Started retriieving timeline ' + req.header('Authorization'));
-  var twitts = [];
+  var tweets = [];
 
   console.info('GetTwitts');
 
   var callback = function (data) {
-    twitts = twitts.concat(data);
-    console.info("________ Callback " + twitts.length);
-    if (twitts.length < 500) {
-      console.info('GetTwitts' + twitts[twitts.length - 1]);
-      getTwitts(req, res, data[data.length - 1].id_str, callback);
+    tweets = tweets.concat(data);
+    var lastTweet = tweets[tweets.length - 1];
+    var num_of_tweets = lastTweet.statuses_count;
+    var max_number_of_tweets = 500;
+    if (max_number_of_tweets > num_of_tweets) {
+      max_number_of_tweets = num_of_tweets;
+    }
+
+    console.info("________ Callback " + tweets.length + ' ' + req.param('twitterScreenName'));
+
+    if (tweets.length < max_number_of_tweets) {
+      console.info('GetTwitts' + tweets[tweets.length - 1]);
+      getTwitts(req, res, lastTweet.id_str, callback);
     }
     else {
-      if (twitts.length > 500) {
-        console.info("length - 500 = " + twitts.length - 500)
-        twitts.splice(500, (twitts.length - 500));
+      if (tweets.length > max_number_of_tweets) {
+        console.info("length - 500 = " + tweets.length - 500)
+        tweets.splice(500, (tweets.length - 500));
       }
-      console.info('spliced twitts' + twitts.length);
-      res.json(aggregator.aggregate(twitts));
+      console.info('spliced tweets' + tweets.length);
+      res.json(aggregator.aggregate(tweets));
     }
   };
 
@@ -42,12 +50,16 @@ function getTwitts(req, res, max_id, callback) {
       }
     };
 
+    console.info(req.header('twitterScreenName'));
+    var path = '/1.1/statuses/user_timeline.json?' +
+      '&count=200' +
+      '&screen_name=' + req.param('twitterScreenName');
+
     if (max_id != "") {
-      options.path = '/1.1/statuses/user_timeline.json?trim_user=true&screen_name=twitterapi&count=200&max_id=' + max_id;
+      path = path + '&max_id=' + max_id;
     }
-    else {
-      options.path = '/1.1/statuses/user_timeline.json?trim_user=true&screen_name=twitterapi&count=200';
-    }
+
+    options.path = path;
 
     return options;
   }
@@ -65,10 +77,15 @@ function getTwitts(req, res, max_id, callback) {
     response.on('end', function () {
       console.info('Retrieved timeline : ' + concatenatedData);
       var parsedData = JSON.parse(concatenatedData);
-      if (max_id != "" && parsedData[0].id_str == max_id) {
-        parsedData.splice(0, 1);
+      if (parsedData.errors) {
+        res.status(401, parsedData.errors.message);
       }
-      callback(parsedData);
+      else {
+        if (max_id != "" && parsedData[0].id_str == max_id) {
+          parsedData.splice(0, 1);
+        }
+        callback(parsedData);
+      }
     });
   });
 
