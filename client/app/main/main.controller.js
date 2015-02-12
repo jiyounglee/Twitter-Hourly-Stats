@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('twitterHourlyStatsApp')
-  .controller('MainCtrl', function ($scope, $http) {
+  .controller('MainCtrl', function ($scope, $http, twitterService) {
     $scope.hasToken = false;
     $scope.processing = false;
     $scope.stats;
@@ -10,16 +10,18 @@ angular.module('twitterHourlyStatsApp')
       return $scope.stats != undefined && !$scope.processing;
     };
 
-    $http.get('/api/twitter/token')
-      .success(function (token) {
-        console.log('success' + token);
-        console.log('success' + token.access_token);
-        $http.defaults.headers.common['Authorization'] = "Bearer " + token.access_token;
-        $scope.hasToken = true;
-      })
-      .error(function (error) {
-        console.log('error' + error);
-        $scope.hasToken = false;
+    twitterService.token()
+      .success(function (data, status, headers) {
+        if (status == 200) {
+          console.log('success' + data.access_token);
+          $http.defaults.headers.common['Authorization'] = "Bearer " + data.access_token;
+          $scope.hasToken = true;
+        }
+        else {
+          console.log('error' + error);
+          $scope.hasToken = false;
+
+        }
       });
 
     $scope.show = function () {
