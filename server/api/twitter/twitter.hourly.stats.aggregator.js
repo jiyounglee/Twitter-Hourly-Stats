@@ -10,7 +10,7 @@ exports.aggregate = function (twitts) {
     return stats;
   }
 
-  console.log('Started aggregating' + twitts.length);
+  console.log('Started aggregating');
   var aggregatedStats = createInitialHourlyStats();
 
   for (var i = 0 in twitts) {
@@ -19,11 +19,6 @@ exports.aggregate = function (twitts) {
     aggregatedStats[date.getUTCHours()] = hourlyCount;
   }
 
-  console.log('Finished aggregating' + JSON.stringify(aggregatedStats));
-  var total = 0;
-  for (var i = 0; i < 24; i++) {
-    total = total + aggregatedStats[i];
-  }
-  console.log('total ' + total);
+  console.log('Finished aggregating ' + JSON.stringify(aggregatedStats));
   return aggregatedStats;
 }
